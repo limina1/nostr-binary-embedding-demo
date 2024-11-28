@@ -58,5 +58,12 @@ for event, score in results['similar']:
    - FAISS finds the most similar vectors using cosine similarity (measure of angle between vectors)
    - The code can also find the most semantically different content by searching for opposite vectors
 
+# Possible enhancements
+- Compare performance/retrieval of multiple models with different dimensions
+- Implement mixbread.ai's demo for nostr events
+# Interesting links
+- https://emschwartz.me/binary-vector-embeddings-are-so-cool/
+- https://www.mixedbread.ai/blog/binary-mrl (implementation to search through 41 million Wikipedia articles using our state-of-the-art binary embeddings. More advanced, can use for another demo)
+- https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
 
 
