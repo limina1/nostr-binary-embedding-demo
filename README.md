@@ -53,7 +53,7 @@ for event, score in results['similar']:
 3. **Vector Storage**: The FAISS library efficiently stores and indexes these vectors, enabling fast similarity searches.
 
 4. **Similarity Search**: When performing a search:
-   - Similarity search can be seen as an optimized and approximate (K Nearest Neighbors)[https://scikit-learn.org/1.5/modules/neighbors.html] search for vectors
+   - Similarity search can be seen as an optimized and approximate [K Nearest Neighbors](https://scikit-learn.org/1.5/modules/neighbors.html) search for vectors
    - The query text is converted into the same vector space
    - FAISS finds the most similar vectors using cosine similarity (measure of angle between vectors)
    - The code can also find the most semantically different content by searching for opposite vectors
