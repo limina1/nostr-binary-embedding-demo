@@ -55,7 +55,7 @@ for event, score in results['similar']:
 4. **Similarity Search**: When performing a search:
    - Similarity search can be seen as an optimized and approximate [K Nearest Neighbors](https://scikit-learn.org/1.5/modules/neighbors.html) search for vectors
    - The query text is converted into the same vector space
-   - FAISS finds the most similar vectors using cosine similarity (measure of angle between vectors)
+   - FAISS finds the most similar vectors using a distance metric - typically cosine similarity, for binary vectors, Hamming distance is used
    - The code can also find the most semantically different content by searching for opposite vectors
 
 # Possible enhancements
