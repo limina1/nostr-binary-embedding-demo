@@ -21,7 +21,6 @@ class NostrEvent:
     pubkey: str
     created_at: int
     kind: int
-    binary_vector: Optional[np.ndarray] = None
 
 
 def visualize_vector(vector: np.ndarray, width: int = 32) -> str:
@@ -29,7 +28,7 @@ def visualize_vector(vector: np.ndarray, width: int = 32) -> str:
 
 
 class NostrBinaryVectorDB:
-    def __init__(self, model_name: str = "all-MiniLM-L6-v2", dimension: int = 384):
+    def __init__(self, model_name: str = "all-mpnet-base-v2", dimension: int = 768):
         """
         Initialize the binary vector database.
 
@@ -127,9 +126,6 @@ class NostrBinaryVectorDB:
 
         # Convert to binary (True/False) based on sign
         binary_values = dense_embeddings > 0
-
-        for event, binary in zip(events, binary_values):
-            event.binary_vector = binary
 
         # Pack into bytes (uint8)
         packed = np.packbits(binary_values, axis=1)
@@ -249,7 +245,12 @@ def format_event_output(
 def main(
     query: str,
     nEvents: int = 1000,
-    relays: List[str] = ["wss://relay.damus.io", "wss://nos.lol"],
+    relays: List[str] = [
+        "wss://relay.damus.io",
+        "wss://nos.lol",
+        "wss://relay.nostrplebs.com",
+        "wss://relay.nostr.band",
+    ],
     nPrint: int = 10,
 ):
     """
@@ -269,30 +270,29 @@ def main(
         nPrint: Number of results to display for each category
     """
     try:
-        logger.info(f"Initializing with parameters: nEvents={nEvents}, relays={relays}")
-        model = SentenceTransformer("all-MiniLM-L6-v2")
+        # logger.info(f"Initializing with parameters: nEvents={nEvents}, relays={relays}")
+        model = SentenceTransformer("sentence-transformers/all-mpnet-base-v2")
         dimension = model.get_sentence_embedding_dimension()
         db = NostrBinaryVectorDB(dimension=dimension)
 
-        logger.info("Fetching events...")
+        # logger.info("Fetching events...")
         events = db.fetch_events(limit=nEvents, relays=relays)
         if not events:
             logger.error("No events were fetched")
             return
 
-        logger.info(f"Adding {len(events)} events to database...")
         db.add_events(events)
 
         logger.info("Performing search...")
-        results = db.search(query, k=nPrint, include_opposite=True)
+        results = db.search(query, k=nPrint, include_opposite=False)
 
         print("\n=== Most Similar Events (Based on Hamming Distance) ===")
         for event, score in results["similar"]:
             print(f"\n{format_event_output(event, score)}")
 
-        print("\n=== Most Different Events (Based on Hamming Distance) ===")
-        for event, score in results["different"]:
-            print(f"\n{format_event_output(event, score)}")
+        # print("\n=== Most Different Events (Based on Hamming Distance) ===")
+        # for event, score in results["different"]:
+        #     print(f"\n{format_event_output(event, score)}")
 
     except Exception as e:
         logger.error(f"Error in main: {str(e)}")
@@ -301,4 +301,4 @@ def main(
 
 
 if __name__ == "__main__":
-    main(query="Happy Thanksgiving fiatjaf!", nEvents=1000, nPrint=5)
+    main(query="austrian economics", nEvents=100, nPrint=20)
