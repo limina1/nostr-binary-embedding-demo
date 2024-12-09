@@ -9,6 +9,7 @@ from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
 import torch
+from time import time
 
 logging.basicConfig(level=logging.DEBUG)  # Changed to DEBUG level
 logger = logging.getLogger(__name__)
@@ -28,7 +29,11 @@ def visualize_vector(vector: np.ndarray, width: int = 32) -> str:
 
 
 class NostrBinaryVectorDB:
-    def __init__(self, model_name: str = "all-mpnet-base-v2", dimension: int = 768):
+    def __init__(
+        self,
+        model_name: str = "mixedbread-ai/mxbai-embed-xsmall-v1",
+        dimension: int = 384,
+    ):
         """
         Initialize the binary vector database.
 
@@ -271,7 +276,7 @@ def main(
     """
     try:
         # logger.info(f"Initializing with parameters: nEvents={nEvents}, relays={relays}")
-        model = SentenceTransformer("sentence-transformers/all-mpnet-base-v2")
+        model = SentenceTransformer("mixedbread-ai/mxbai-embed-xsmall-v1")
         dimension = model.get_sentence_embedding_dimension()
         db = NostrBinaryVectorDB(dimension=dimension)
 
@@ -287,7 +292,7 @@ def main(
         results = db.search(query, k=nPrint, include_opposite=False)
 
         print("\n=== Most Similar Events (Based on Hamming Distance) ===")
-        for event, score in results["similar"]:
+        for event, score in results["similar"][::-1]:
             print(f"\n{format_event_output(event, score)}")
 
         # print("\n=== Most Different Events (Based on Hamming Distance) ===")
@@ -301,4 +306,19 @@ def main(
 
 
 if __name__ == "__main__":
-    main(query="austrian economics", nEvents=100, nPrint=20)
+    t0 = time()
+    main(
+        query="austrian economics",
+        nEvents=2000,
+        nPrint=20,
+        relays=[
+            "wss://relay.damus.io",
+            "wss://relay.nostr.band",
+            "wss://relay.nostrplebs.com",
+            "wss://theforest.nostr1.com",
+            "wss://relay.primal.net",
+        ],
+    )
+
+    t1 = time()
+    print(f"Time taken: {t1-t0:.2f} seconds")
